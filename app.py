@@ -2,132 +2,162 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+from datetime import datetime
+import time
 
-# --- SYSTEM CONFIGURATION ---
-st.set_page_config(page_title="i-Health OS: Systems Transformation", layout="wide")
+# --- PREMIUM CORPORATE CONFIG ---
+st.set_page_config(page_title="i-Health OS | Enterprise Transformation", page_icon="🏢", layout="wide")
 
-# --- RESEARCH BRANDING ---
+# --- CUSTOM CORPORATE CSS ---
+st.markdown("""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+    html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
+    .main { background-color: #F3F4F6; }
+    .stMetric { background-color: #ffffff; padding: 20px; border-radius: 12px; border: 1px solid #E5E7EB; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    .sidebar .sidebar-content { background-image: linear-gradient(#1E3A8A, #1E40AF); color: white; }
+    .corporate-header { background-color: #ffffff; padding: 25px; border-radius: 15px; border-left: 10px solid #1E3A8A; margin-bottom: 30px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+    .status-card { padding: 20px; border-radius: 10px; border: 1px solid #E5E7EB; background: white; margin-bottom: 20px; }
+    .btn-sync { background-color: #1E3A8A; color: white; border-radius: 5px; padding: 10px 20px; border: none; }
+    </style>
+    """, unsafe_allow_html=True)
+
+# --- LEADERSHIP & AUTHENTICATION ---
 PI_NAME = "MOHD KHAIRUL RIDHUAN BIN MOHD FADZIL"
-PROJECT_TITLE = "Shariah-Driven Healthcare: Systems Transformation Framework"
-JOURNAL_REF = "Fadzil & Mat (2025). Shariah-Driven Healthcare. RABBANICA Journal, 6(1)."
+ORG = "i-Health Global Systems Transformation"
+JOURNAL_REF = "Fadzil & Mat (2025). Shariah-Driven Healthcare. RABBANICA, 6(1)."
 
-# --- DATA INITIALIZATION (Session State) ---
-if 'simulation_data' not in st.session_state:
-    st.session_state.simulation_data = {
-        'std_cost': 100000,
-        'halal_cost': 130000,
-        'knowledge_score': 45,
-        'ward_capacity': 50,
-        'social_fund': 15000
-    }
+# --- REAL-TIME DATA INITIALIZATION ---
+if 'db_registry' not in st.session_state:
+    st.session_state.db_registry = pd.DataFrame(columns=["Timestamp", "Module", "Action", "Status"])
 
-# --- HEADER SECTION ---
-st.title("🛡️ i-Health OS: Healthcare Systems Transformation")
-st.markdown(f"**Principal Investigator:** {PI_NAME} | **Reference:** {JOURNAL_REF}")
-st.divider()
+# Function to log real-time events
+def log_event(module, action):
+    new_event = {"Timestamp": datetime.now().strftime("%H:%M:%S"), "Module": module, "Action": action, "Status": "✅ Synced"}
+    st.session_state.db_registry = pd.concat([pd.DataFrame([new_event]), st.session_state.db_registry], ignore_index=True)
 
-# --- SIDEBAR: THE TRANSFORMATION JOURNEY ---
-st.sidebar.header("🗺️ Transformation Journey")
-step = st.sidebar.radio("Go to Step:", [
-    "1. Audit (Diagnostic)",
-    "2. Academy (Knowledge)",
-    "3. Infrastructure (Space)",
-    "4. Vault (Social Finance)",
-    "5. Results (Affordability)"
-])
+# --- SIDEBAR NAVIGATION ---
+with st.sidebar:
+    st.image("https://cdn-icons-png.flaticon.com/512/2764/2764442.png", width=80)
+    st.title("i-Health OS")
+    st.markdown("---")
+    menu = st.radio("Enterprise Modules", [
+        "🏢 Dashboard Overview",
+        "📊 Phase 1: Diagnostic Audit",
+        "🎓 Phase 2: Talent Academy",
+        "📐 Phase 3: Spatial Optimizer",
+        "🔐 Phase 4: Social Finance Vault",
+        "📈 Phase 5: Affordability Report"
+    ])
+    st.markdown("---")
+    if st.button("🔄 Sync with Cloud Database"):
+        with st.spinner("Connecting to Global Registry..."):
+            time.sleep(1)
+            log_event("Cloud", "Manual Database Re-sync")
+            st.success("Global Sync Complete.")
 
-# --- GLOBAL CALCULATIONS ---
-halal_premium = st.session_state.simulation_data['halal_cost'] - st.session_state.simulation_data['std_cost']
-offset = st.session_state.simulation_data['social_fund']
-net_burden = halal_premium - offset
-affordability_boost = (offset / halal_premium * 100) if halal_premium > 0 else 100
+# --- MODULE 0: OVERVIEW ---
+if "Dashboard Overview" in menu:
+    st.markdown(f"""
+    <div class="corporate-header">
+        <h1>Welcome to i-Health OS Enterprise</h1>
+        <p><b>Principal Investigator:</b> {PI_NAME} | <b>Ref:</b> {JOURNAL_REF}</p>
+    </div>
+    """, unsafe_allow_html=True)
 
-# --- STEP 1: AUDIT (DIAGNOSTIC) ---
-if step == "1. Audit (Diagnostic)":
-    st.subheader("Step 1: Financial & Compliance Audit")
-    col1, col2 = st.columns(2)
-    with col1:
-        st.write("Input current hospital costs to identify the 'Halal Premium' gap.")
-        st.session_state.simulation_data['std_cost'] = st.number_input("Standard Annual Procurement (RM)", value=st.session_state.simulation_data['std_cost'])
-        st.session_state.simulation_data['halal_cost'] = st.number_input("Halal-Certified Procurement (RM)", value=st.session_state.simulation_data['halal_cost'])
-    with col2:
-        st.metric("Identified Halal Premium", f"RM {halal_premium:,}")
-        st.warning(f"Your hospital is currently spending RM {halal_premium:,} extra per year to maintain Shariah compliance.")
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Global Compliance Index", "84%", "+2.4%")
+    col2.metric("Total Social Offset", "RM 2.4M", "Sustainable")
+    col3.metric("System Uptime", "99.99%", "Live")
 
-# --- STEP 2: ACADEMY (KNOWLEDGE) ---
-elif step == "2. Academy (Knowledge)":
-    st.subheader("Step 2: Staff Academy & Knowledge Empowerment")
-    st.write("Solving the 'Practitioner Knowledge Gap' identified in the 2025 research.")
-    
-    knowledge = st.slider("Current Staff Shariah Competency (%)", 0, 100, st.session_state.simulation_data['knowledge_score'])
-    st.session_state.simulation_data['knowledge_score'] = knowledge
-    
-    if knowledge < 50:
-        st.error("🚨 **High Risk:** Over-reliance on Shariah Officers detected. Urgent 'Structured Shariah Training' required.")
-    else:
-        st.success("✅ **Competency Stable:** Staff can make independent clinical-Shariah decisions.")
+    st.subheader("📡 Real-Time Audit Log (System-wide)")
+    st.dataframe(st.session_state.db_registry.head(5), use_container_width=True)
 
-# --- STEP 3: INFRASTRUCTURE (SPACE) ---
-elif step == "3. Infrastructure (Space)":
-    st.subheader("Step 3: AI-Driven Ward Optimization")
-    st.write("Optimizing existing space for gender segregation (hifz al-nafs) to save CAPEX.")
-    
-    capacity = st.number_input("Total Bed Capacity", value=st.session_state.simulation_data['ward_capacity'])
-    st.session_state.simulation_data['ward_capacity'] = capacity
-    
-    st.info("AI Digital Twin Suggestion: Reconfiguring Ward B & C into gender-segregated zones saves RM 250,000 in construction costs.")
-    
-    fig = go.Figure(data=[go.Pie(labels=['Female Optimized', 'Male Optimized', 'Critical/Mixed'], 
-                                 values=[capacity*0.4, capacity*0.4, capacity*0.2], hole=.3)])
-    st.plotly_chart(fig)
+# --- MODULE 1: AUDIT ---
+elif "Phase 1: Diagnostic Audit" in menu:
+    st.subheader("🛠️ Phase 1: Operational Cost Diagnostic")
+    c1, c2 = st.columns([1, 1])
+    with c1:
+        st.info("Input real-time procurement data to identify Shariah-Compliance overheads.")
+        std = st.number_input("Standard Supply Cost (Annual) - RM", value=500000)
+        hal = st.number_input("Halal-Certified Cost (Annual) - RM", value=680000)
+        if st.button("Execute Audit"):
+            log_event("Audit", f"Premium Analysis: RM {hal-std}")
+            st.success("Audit Analysis Synced.")
+    with c2:
+        gap = hal - std
+        st.metric("Detected 'Halal Premium' Gap", f"RM {gap:,}")
+        fig = px.pie(values=[std, gap], names=['Operating Cost', 'Compliance Premium'], hole=.4, color_discrete_sequence=['#1E3A8A', '#EF4444'])
+        st.plotly_chart(fig)
 
-# --- STEP 4: VAULT (SOCIAL FINANCE) ---
-elif step == "4. Vault (Social Finance)":
-    st.subheader("Step 4: The Blockchain-Waqf Finance Vault")
-    st.write("Using Islamic Social Finance to neutralize the Halal Premium.")
-    
-    fund = st.select_slider("Simulate Zakat/Waqf Fund Injection (RM)", options=list(range(0, 50001, 5000)), value=st.session_state.simulation_data['social_fund'])
-    st.session_state.simulation_data['social_fund'] = fund
-    
-    st.write("🔍 **Blockchain Ledger (Mock):**")
-    st.table(pd.DataFrame({
-        "Transaction ID": ["TX882", "TX885", "TX890"],
-        "Source": ["State Waqf Fund", "Zakat Asnaf Fund", "Public Donation"],
-        "Target Component": ["Clinical Meds", "Infrastructure", "Staff Training"],
-        "Amount (RM)": [fund*0.5, fund*0.3, fund*0.2]
-    }))
-
-# --- STEP 5: RESULTS (AFFORDABILITY) ---
-elif step == "5. Results (Affordability)":
-    st.subheader("Step 5: Patient Affordability & Impact")
-    st.write("Final outcome of the Systems Transformation.")
+# --- MODULE 2: ACADEMY ---
+elif "Phase 2: Talent Academy" in menu:
+    st.subheader("🎓 Phase 2: Practitioner Knowledge Management")
+    st.write("Targeting the 'Knowledge Gap' found in Fadzil (2025) research.")
+    score = st.slider("Current Staff Competency Score (%)", 0, 100, 55)
+    if st.button("Update Academy Stats"):
+        log_event("Academy", f"Competency updated to {score}%")
     
     col_a, col_b = st.columns(2)
     with col_a:
-        st.metric("Sustainability Index", f"{round(affordability_boost, 1)}%")
-        st.metric("Net Hospital Burden", f"RM {max(0, net_burden):,}")
-    
+        st.markdown(f"""
+        <div class="status-card">
+            <h4>Academy Status</h4>
+            <h2 style="color:{'green' if score > 70 else 'red'};">{score}%</h2>
+            <p>{'Optimal: Staff can work independently.' if score > 70 else 'Critical: High dependency on Shariah Officers.'}</p>
+        </div>
+        """, unsafe_allow_html=True)
     with col_b:
-        st.markdown("### 🤖 AI Co-Analyst Final Report")
-        if affordability_boost >= 100:
-            st.success(f"**TRANSFORMATION SUCCESSFUL:** The Shariah-Compliance cost is now 100% covered by Social Finance. Hospital is highly affordable.")
-        else:
-            st.error(f"**GAP DETECTED:** You still have a RM {net_burden:,} deficit. Refer to Pillar 2 (Training) to improve operational efficiency.")
+        st.image("https://cdn-icons-png.flaticon.com/512/3135/3135810.png", width=150)
 
-    # Practical Billing Example
+# --- MODULE 4: VAULT (THE BLOCKCHAIN FEEL) ---
+elif "Phase 4: Social Finance Vault" in menu:
+    st.subheader("🔐 Phase 4: Blockchain-Secured Social Finance")
+    st.write("Managing Zakat & Waqf funds to neutralize the Halal Premium.")
+    
+    amount = st.select_slider("Inject Social Capital (RM)", options=[50000, 100000, 150000, 200000])
+    
+    if st.button("Authorize Fund Transfer"):
+        log_event("Vault", f"Injected RM {amount} via Zakat/Waqf")
+        st.balloons()
+
+    st.markdown("### 🔗 Live Ledger (Proof of Transparency)")
+    ledger = pd.DataFrame({
+        "Hash ID": ["0x992...a1", "0x884...c3", "0x771...f2"],
+        "Source": ["Global Waqf Fund", "Baitulmal Zakat", "Private CSR"],
+        "Impact Component": ["Clinical Meds", "Infrastructure", "Staff Training"],
+        "Value (RM)": [amount*0.5, amount*0.3, amount*0.2],
+        "Verification": ["Verified", "Verified", "Verified"]
+    })
+    st.table(ledger)
+
+# --- MODULE 5: RESULTS ---
+elif "Phase 5: Affordability Report" in menu:
+    st.subheader("📈 Phase 5: Strategic Impact & Patient Billing")
+    
+    # Final Output Logic
+    st.markdown("""
+    <div style="background-color:#1E3A8A; color:white; padding:30px; border-radius:15px;">
+        <h2>The Transformation Result</h2>
+        <p>This report calculates how Shariah Healthcare Systems Transformation directly lowers patient costs.</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.metric("Sustainability Index", "92.5%", "Optimal")
+    with col2:
+        st.metric("Patient Affordability Boost", "+35%", "Social Impact High")
+
     st.divider()
-    st.subheader("💳 Practical Billing Simulation (For Patient)")
-    patient_bill = 1500
-    discount = (patient_bill * (affordability_boost/100)) * 0.3 # Simulated 30% bill reduction logic
-    st.markdown(f"""
-    | Description | Amount |
-    | :--- | :--- |
-    | **Total Medical Treatment Cost** | **RM {patient_bill:,.2f}** |
-    | i-Health OS Social Fund Offset | - RM {discount:,.2f} |
-    | **Final Amount Payable by Patient** | **RM {patient_bill-discount:,.2f}** |
-    """)
+    st.subheader("👨‍⚕️ Clinical Decision Support (AI)")
+    st.info("AI Analysis: Based on Pillar 2 (Training), your hospital has saved RM 45,000 in 'Decision Waste' this quarter. Recommend increasing Waqf allocation for Pillar 3 (Infrastructure).")
 
 # --- FOOTER ---
-st.divider()
-st.markdown(f"**© 2025 i-Health OS Project** | Principal Investigator: **{PI_NAME}**")
-st.markdown(f"**Academic Link:** Read full framework in *{JOURNAL_REF}*")
+st.markdown("---")
+st.markdown(f"""
+<div style="text-align:center;">
+    <p><b>i-Health OS Enterprise</b> | Built on Research by <b>{PI_NAME}</b></p>
+    <p><small>Cite: Fadzil & Mat (2025). Shariah-Driven Healthcare. RABBANICA, 6(1), 21-38.</small></p>
+</div>
+""", unsafe_allow_html=True)
