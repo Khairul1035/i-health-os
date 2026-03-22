@@ -3,11 +3,11 @@ import pandas as pd
 import time
 import plotly.express as px
 
-# --- 1. CONFIGURATION & BRANDING ---
-st.set_page_config(page_title="i-Health OS | Full Enterprise", layout="wide")
+# --- 1. CONFIGURATION ---
+st.set_page_config(page_title="i-Health OS | Systems Transformation", layout="wide")
 PI_NAME = "MOHD KHAIRUL RIDHUAN BIN MOHD FADZIL"
 
-# --- 2. DATA PERSISTENCE (Finance & Global Data) ---
+# --- 2. SESSION STATE (REAL-TIME DATABASE) ---
 if 'total_grant' not in st.session_state:
     st.session_state.total_grant = 250000.0
 if 'total_spent' not in st.session_state:
@@ -18,7 +18,8 @@ if 'unit_pct' not in st.session_state:
         "General Ward": 15, "Neonat": 15, "Onco": 10, "Others": 10
     }
 
-# --- 3. DATABASE SOALAN (10 Questions x 5 Sets) ---
+# --- 3. QUESTION DATABASE (SET A - E) ---
+# Format dibetulkan untuk mengelakkan SyntaxError
 questions_db = {
     "Set A: Maqasid Fundamentals": [
         ("What is the primary objective of Maqasid in healthcare?", ["Profit", "Public Welfare (Maslahah)", "Staff Ease"]),
@@ -32,43 +33,48 @@ questions_db = {
         ("Ethical leadership is part of:", ["Amanah (Trust)", "Profit", "Speed"]),
         ("Patient hygiene is part of:", ["Hifz al-Din", "Hifz al-Mal", "Hifz al-Nasl"])
     ],
-    "Set B: Life & Dignity", "Set C: Finance", "Set D: Privacy", "Set E: Future"
-} # (Nota: Set B-E dipendekkan untuk kod ini, anda boleh tambah soalan penuh di sini)
+    "Set B: Life & Dignity": [("Question placeholder for Set B", ["Option 1", "Option 2", "Option 3"])],
+    "Set C: Finance": [("Question placeholder for Set C", ["Option 1", "Option 2", "Option 3"])],
+    "Set D: Privacy": [("Question placeholder for Set D", ["Option 1", "Option 2", "Option 3"])],
+    "Set E: Future": [("Question placeholder for Set E", ["Option 1", "Option 2", "Option 3"])]
+}
 
 # --- 4. SIDEBAR ---
 st.sidebar.title("🏥 i-Health OS")
 st.sidebar.markdown(f"**Principal Investigator:**\n{PI_NAME}")
 st.sidebar.divider()
-menu = st.sidebar.radio("Navigation", ["📚 Talent Academy Training", "💰 Interactive Finance Hub"])
+menu = st.sidebar.radio("Navigation", ["📚 Staff Weekly Training", "💰 Interactive Finance Hub"])
+st.sidebar.divider()
+st.sidebar.caption("© 2025 | Ref: Fadzil & Mat (2025)")
 
-# --- 5. TRAINING MODULE ---
-if menu == "📚 Talent Academy Training":
-    st.header("📖 Weekly Training Assessment")
-    st.info("Complete your weekly set to maintain Shariah competency.")
+# --- 5. MODULE: STAFF TRAINING ---
+if menu == "📚 Staff Weekly Training":
+    st.header("📖 Weekly Staff Refreshment Module")
     
     with st.container():
         c1, c2, c3 = st.columns([2, 2, 1])
         name = c1.text_input("Staff Name")
         s_id = c2.text_input("Staff ID")
-        selected_set = c3.selectbox("Select Set", ["Set A: Maqasid Fundamentals", "Set B", "Set C", "Set D", "Set E"])
+        selected_set = c3.selectbox("Select Set", list(questions_db.keys()))
 
     if 'start_time' not in st.session_state:
         st.session_state.start_time = time.time()
 
     st.divider()
-    if selected_set == "Set A: Maqasid Fundamentals":
-        st.subheader(f"📝 Assessment: {selected_set}")
-        for i, (q, opts) in enumerate(questions_db["Set A: Maqasid Fundamentals"]):
-            st.radio(f"Q{i+1}: {q}", opts, key=f"q{i}")
-        
-        if st.button("Submit Assessment"):
-            st.success(f"✅ Assessment for {name} ({s_id}) Submitted!")
-            st.balloons()
-            del st.session_state.start_time
-    else:
-        st.warning(f"Questions for {selected_set} are ready. Please select Set A for the live demo.")
+    st.subheader(f"📝 Assessment: {selected_set}")
+    
+    # Render Questions
+    for i, (q, opts) in enumerate(questions_db[selected_set]):
+        st.radio(f"Q{i+1}: {q}", opts, key=f"q_{selected_set}_{i}")
+    
+    if st.button("Submit Assessment"):
+        duration = round((time.time() - st.session_state.start_time) / 60, 2)
+        st.success(f"✅ Submission Received for {name} ({s_id})")
+        st.write(f"⏱️ **Time Taken:** {duration} minutes")
+        st.balloons()
+        del st.session_state.start_time
 
-# --- 6. FINANCE HUB (FULLY LINKED & LOGICAL) ---
+# --- 6. MODULE: FINANCE HUB (FULLY INTERACTIVE) ---
 elif menu == "💰 Interactive Finance Hub":
     st.header("💰 Subsidy Hub & Fund Allocator")
 
@@ -77,53 +83,51 @@ elif menu == "💰 Interactive Finance Hub":
 
     # --- TOP METRICS ---
     m1, m2, m3 = st.columns(3)
-    m1.metric("INITIAL GRANT", f"RM {st.session_state.total_grant:,.2f}")
+    m1.metric("INITIAL GRANT (MNC A)", f"RM {st.session_state.total_grant:,.2f}")
     m2.metric("TOTAL USED", f"RM {st.session_state.total_spent:,.2f}", delta="- Used", delta_color="inverse")
     
-    # ALERT LOGIC
     if current_balance <= 0:
         m3.error("🚨 NO MORE SUBSIDY")
         current_balance = 0
     else:
         m3.metric("REMAINING BALANCE", f"RM {current_balance:,.2f}")
 
-    # --- PATIENT BILLING (THE LINK) ---
+    # --- PATIENT BILLING & CLAIM ---
     st.divider()
-    st.subheader("🧾 Real-Time Patient Billing & Claim Process")
+    st.subheader("🧾 Real-Time Patient Billing & Claim Simulation")
     
-    col_bill1, col_bill2, col_bill3 = st.columns(3)
+    col_b1, col_b2, col_b3 = st.columns(3)
     
-    with col_bill1:
+    with col_b1:
         total_bill = st.number_input("Enter Total Patient Bill (RM)", min_value=0.0, value=5000.0)
     
-    with col_bill2:
-        # User input for subsidy amount
-        subsidy_request = st.number_input("Subsidy Amount to Give (RM)", min_value=0.0, max_value=current_balance, value=min(2000.0, current_balance))
+    with col_b2:
+        max_sub = current_balance if current_balance > 0 else 0.0
+        subsidy_request = st.number_input("Subsidy to Apply (RM)", min_value=0.0, max_value=max_sub, value=min(2000.0, max_sub))
     
     patient_pays = total_bill - subsidy_request
     
-    with col_bill3:
-        st.write("**Financial Summary:**")
-        st.write(f"Grant Covers: **RM {subsidy_request:,.2f}**")
-        st.write(f"Patient Pays: **RM {patient_pays:,.2f}**")
+    with col_b3:
+        st.write("**Payment Summary:**")
+        st.write(f"Subsidy Discount: **RM {subsidy_request:,.2f}**")
+        st.markdown(f"### Patient Pays: RM {patient_pays:,.2f}")
         
         if st.button("Finalize & Deduct from Grant"):
             if current_balance >= subsidy_request and subsidy_request > 0:
                 st.session_state.total_spent += subsidy_request
-                st.success(f"Claim Processed! RM {subsidy_request} deducted from main fund.")
+                st.success(f"Claim Processed! RM {subsidy_request} deducted.")
                 time.sleep(1)
                 st.rerun()
             else:
-                st.error("Insufficient Funds or Invalid Amount.")
+                st.error("No subsidy available or invalid amount.")
 
     # --- UNIT ALLOCATION ---
     st.divider()
-    st.subheader("📊 Strategic Allocation of Remaining Balance")
-    st.write(f"Current Balance (RM {current_balance:,.2f}) is distributed to the following units:")
+    st.subheader("📊 Remaining Fund Allocation by Unit")
+    st.write(f"Current Balance (RM {current_balance:,.2f}) redistributed to hospital units:")
 
-    # Adjustable Percentages
-    u_cols = st.columns(7)
     units = ["ICU", "CCU", "Cardiac", "General Ward", "Neonat", "Onco", "Others"]
+    u_cols = st.columns(len(units))
     new_pcts = {}
     
     for i, unit in enumerate(units):
@@ -133,22 +137,20 @@ elif menu == "💰 Interactive Finance Hub":
     total_p = sum(new_pcts.values())
 
     if total_p != 100:
-        st.error(f"⚠️ Total Percentage is {total_p}%. Must be 100%.")
+        st.error(f"⚠️ Total Percentage is {total_p}%. Adjust to exactly 100% to view map.")
     else:
-        # Calculation Table
-        df = pd.DataFrame({
+        df_units = pd.DataFrame({
             "Unit": units,
-            "Allocation (%)": [new_pcts[u] for u in units],
             "Amount (RM)": [current_balance * (new_pcts[u]/100) for u in units]
         })
         
-        c_table, c_pie = st.columns([1, 1])
-        with c_table:
-            st.table(df.style.format({"Amount (RM)": "RM {:,.2f}"}))
-        with c_pie:
-            fig = px.pie(df, values='Amount (RM)', names='Unit', hole=0.5, title="Fund Distribution Map")
+        c_t, c_c = st.columns([1, 1])
+        with c_t:
+            st.table(df_units.style.format({"Amount (RM)": "RM {:,.2f}"}))
+        with c_c:
+            fig = px.pie(df_units, values='Amount (RM)', names='Unit', hole=0.5, title="Live Allocation Map")
             st.plotly_chart(fig, use_container_width=True)
 
 # --- FOOTER ---
 st.divider()
-st.markdown(f"<div style='text-align:center;'><b>i-Health OS</b> | PI: {PI_NAME}</div>", unsafe_allow_html=True)
+st.markdown(f"<div style='text-align:center;'><b>i-Health OS</b> | Principal Investigator: {PI_NAME}</div>", unsafe_allow_html=True)
