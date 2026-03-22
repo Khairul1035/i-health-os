@@ -1,204 +1,139 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
-from datetime import datetime
 import time
+import plotly.express as px
+from datetime import datetime
 
-# --- 1. CONFIGURATION ---
-st.set_page_config(page_title="i-Health OS | Enterprise Systems", page_icon="🏢", layout="wide")
-
-# --- 2. PREMIUM CORPORATE CSS ---
-st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
-    html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
-    .main { background-color: #F9FAFB; }
-    .stMetric { background-color: #ffffff; padding: 20px; border-radius: 12px; border: 1px solid #E5E7EB; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-    .sidebar .sidebar-content { background-color: #111827; color: white; }
-    .pi-header { background: linear-gradient(90deg, #1E3A8A 0%, #1E40AF 100%); padding: 30px; border-radius: 15px; color: white; margin-bottom: 25px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2); }
-    .ai-report { background-color: #EFF6FF; border-left: 5px solid #1D4ED8; padding: 20px; border-radius: 8px; border: 1px solid #d1d5db; }
-    </style>
-    """, unsafe_allow_html=True)
-
-# --- 3. DATA PERSISTENCE ---
-if 'logs' not in st.session_state:
-    st.session_state.logs = []
-if 'audit_data' not in st.session_state:
-    st.session_state.audit_data = {"std": 500000, "hal": 650000, "zakat": 50000}
-
-def log_event(module, action, status="✅"):
-    st.session_state.logs.append({
-        "Time": datetime.now().strftime("%H:%M:%S"),
-        "Module": module,
-        "Action": action,
-        "Status": status
-    })
+# --- 1. SETTINGS & BRANDING ---
+st.set_page_config(page_title="i-Health OS | Staff & Finance Portal", layout="wide")
 
 PI_NAME = "MOHD KHAIRUL RIDHUAN BIN MOHD FADZIL"
-PROJECT_REF = "Fadzil & Mat (2025). Shariah-Driven Healthcare. RABBANICA, 6(1)."
 
-# --- 4. SIDEBAR NAVIGATION ---
-with st.sidebar:
-    st.image("https://cdn-icons-png.flaticon.com/512/2764/2764442.png", width=70)
-    st.title("i-Health OS")
-    st.caption("Enterprise Systems Transformation")
+# --- 2. SESSION STATE (DATABASE SIMULATION) ---
+if 'grant_data' not in st.session_state:
+    st.session_state.total_grant = 100000.0  # MNC A Grant
+    st.session_state.spent = 18000.0        # Initial Patient Use
+    st.session_state.balance = st.session_state.total_grant - st.session_state.used_subsidy if 'used_subsidy' in st.session_state else 82000.0
+
+# --- 3. SIDEBAR NAVIGATION ---
+st.sidebar.markdown(f"### 🏥 i-Health OS\n**Principal Investigator:**\n{PI_NAME}")
+st.sidebar.divider()
+menu = st.sidebar.radio("Navigation", ["📚 Weekly Staff Training", "💰 Grant & Subsidy Hub"])
+st.sidebar.divider()
+st.sidebar.caption(f"© 2025 | Research Reference: Fadzil & Mat (2025)")
+
+# --- 4. MODULE: WEEKLY STAFF TRAINING ---
+if menu == "📚 Weekly Staff Training":
+    st.header("📖 Weekly Shariah-Clinical Refreshment")
+    st.info("Requirement: Complete your assigned Weekly Set to maintain compliance certification.")
+
+    # Staff Credentials
+    with st.container():
+        c1, c2, c3 = st.columns([2, 2, 1])
+        staff_name = c1.text_input("Full Name", placeholder="e.g. Dr. Ahmad")
+        staff_id = c2.text_input("Staff ID", placeholder="e.g. STF-990")
+        week_set = c3.selectbox("Assign Set", ["Set A", "Set B", "Set C", "Set D", "Set E"])
+
+    if 'start_time' not in st.session_state:
+        st.session_state.start_time = time.time()
+
     st.divider()
-    # PENTING: Nama emoji mesti sama dengan if-statement di bawah
-    menu = st.radio("Transformation Phases", [
-        "🏢 Executive Overview",
-        "📊 Phase 1: Diagnostic Audit",
-        "🎓 Phase 2: Talent Academy",
-        "📐 Phase 3: Spatial Optimizer",
-        "🔐 Phase 4: Social Finance Vault",
-        "📈 Phase 5: Affordability Report"
-    ])
-    st.divider()
-    st.info(f"**Principal Investigator:**\n\n{PI_NAME}")
+    st.subheader(f"📝 Assessment: {week_set}")
 
-# --- 5. MAIN CONTENT FLOW ---
+    # QUESTION LOGIC (Example for Set A - You can duplicate for B, C, D, E)
+    if week_set == "Set A":
+        q1 = st.radio("1. What is the priority if Halal-certified medicine is unavailable in a 'Darurah' (Emergency)?", 
+                      ["Wait for stock", "Use non-halal immediately", "Seek family permission", "Postpone surgery"])
+        q2 = st.radio("2. Shariah-compliant healthcare prioritizes which of the following?", 
+                      ["Profit only", "Patient Dignity & Privacy", "Speed over Ethics", "Minimal Documentation"])
+        q3 = st.radio("3. Who is authorized to make clinical-shariah decisions after hours?", 
+                      ["Security", "Lead Physician", "Pharmacist Assistant", "Receptionist"])
+        q4 = st.radio("4. Cross-gender examination is allowed under which condition?", 
+                      ["Always", "In the presence of a chaperone/necessity", "Never", "Only for minors"])
+        q5 = st.radio("5. The 'Halal Premium' cost is justified by?", 
+                      ["Increasing bills", "Long-term ethical trust/Maqasid", "Marketing only", "Government fine"])
 
-# --- MODULE: OVERVIEW ---
-if menu == "🏢 Executive Overview":
-    st.markdown(f"""
-    <div class="pi-header">
-        <h1>i-Health OS: Healthcare Systems Transformation</h1>
-        <p>Principal Investigator: <b>{PI_NAME}</b> | Global Reference: {PROJECT_REF}</p>
-    </div>
-    """, unsafe_allow_html=True)
-    c1, c2, c3 = st.columns(3)
-    c1.metric("Compliance Index", "82%", "+1.5%")
-    c2.metric("Knowledge Gap", "45%", "In Progress")
-    c3.metric("Fund Offset", "RM 12.4M", "Stable")
-    st.subheader("📡 Real-Time Transformation Logs")
-    if st.session_state.logs:
-        st.table(pd.DataFrame(st.session_state.logs).tail(5))
     else:
-        st.write("System Ready. No logs recorded yet.")
+        st.warning(f"Questions for {week_set} are rotating. Please proceed with the active module.")
+        st.caption("Admin Note: Sets B-E contain specific modules on Pharmacy, Ward Management, and Financial Ethics.")
 
-# --- MODULE: AUDIT ---
-elif menu == "📊 Phase 1: Diagnostic Audit":
-    st.subheader("🛠️ Phase 1: Operational Cost & Compliance Diagnostic")
-    col_in, col_viz = st.columns([1, 1])
-    with col_in:
-        st.session_state.audit_data['std'] = st.number_input("Standard Annual Procurement (RM)", value=st.session_state.audit_data['std'])
-        st.session_state.audit_data['hal'] = st.number_input("Halal-Certified Procurement (RM)", value=st.session_state.audit_data['hal'])
-        if st.button("Sync Audit Data"):
-            log_event("Audit", "Cost Gap Analysis Executed")
-    with col_viz:
-        premium = st.session_state.audit_data['hal'] - st.session_state.audit_data['std']
-        st.metric("Detected 'Halal Premium' Burden", f"RM {premium:,}")
-        fig = px.pie(values=[st.session_state.audit_data['std'], premium], names=['Standard Cost', 'Halal Premium'], 
-                     color_discrete_sequence=['#1E3A8A', '#EF4444'], hole=0.5)
+    if st.button("Submit & Sync Training Data"):
+        duration = round((time.time() - st.session_state.start_time) / 60, 2)
+        st.success(f"✅ Submission Successful!")
+        st.balloons()
+        
+        # Display Summary for Audit
+        st.markdown(f"""
+        **Audit Trail Summary:**
+        - **Staff:** {staff_name} ({staff_id})
+        - **Module:** {week_set}
+        - **Duration:** {duration} minutes
+        - **Status:** Competency Recorded
+        """)
+        del st.session_state.start_time # Reset for next
+
+# --- 5. MODULE: GRANT & SUBSIDY HUB ---
+elif menu == "💰 Grant & Subsidy Hub":
+    st.header("💰 MNC Grant & Patient Subsidy Tracker")
+    
+    # Financial Summary
+    st.session_state.balance = st.session_state.total_grant - st.session_state.spent
+    
+    m1, m2, m3 = st.columns(3)
+    m1.metric("MNC A Initial Grant", f"RM {st.session_state.total_grant:,.0f}")
+    m2.metric("Total Subsidy Used", f"RM {st.session_state.spent:,.0f}", delta="- Claimed", delta_color="inverse")
+    m3.metric("Current Available Balance", f"RM {st.session_state.balance:,.0f}")
+
+    st.divider()
+
+    # Unit Allocation Breakdown
+    st.subheader("📊 Remaining Fund Allocation by Unit")
+    bal = st.session_state.balance
+    breakdown_data = {
+        "Hospital Unit": ["ICU", "Dialysis", "Cardiac", "CCU", "General Ward"],
+        "Allocation (%)": [30, 25, 20, 15, 10],
+        "Remaining (RM)": [bal*0.3, bal*0.25, bal*0.2, bal*0.15, bal*0.1]
+    }
+    df = pd.DataFrame(breakdown_data)
+
+    c_table, c_chart = st.columns([1, 1])
+    with c_table:
+        st.dataframe(df.style.format({"Remaining (RM)": "RM {:,.2f}"}), hide_index=True)
+    
+    with c_chart:
+        fig = px.pie(df, values='Remaining (RM)', names='Hospital Unit', hole=0.5, 
+                     color_discrete_sequence=px.colors.sequential.RdBu)
         st.plotly_chart(fig, use_container_width=True)
 
-# --- MODULE: ACADEMY (FULL AI LOGIC) ---
-elif menu == "🎓 Phase 2: Talent Academy":
-    st.subheader("🎓 Phase 2: Bi-Weekly Talent Competency Assessment")
-    st.info("AI Co-Researcher Evaluation Mode. Results will be escalated to HOD.")
-    
-    # Part 1: MCQ
-    st.write("### 📝 Part A: Objective Assessment")
-    q1 = st.radio("1. Priority if Halal-certified medicine is unavailable in life-threatening 'Darurah'?", 
-                  ["Wait for Halal stock", "Use non-halal alternative immediately", "Refuse treatment"], index=None)
-    q2 = st.radio("2. Gender segregation in examination relates to which Maqasid?", 
-                  ["Protection of Wealth", "Protection of Dignity (Nafs)", "Protection of Religion"], index=None)
-    
     st.divider()
+
+    # Patient Billing Simulator
+    st.subheader("🧾 Patient Billing Simulation")
+    col_bill, col_final = st.columns(2)
     
-    # Part 2: Subjective
-    st.write("### ✍️ Part B: Subjective Logic (AI Evaluation)")
-    s1 = st.text_area("S1: Explain how to manage a conflict where a non-muslim doctor disagrees with Shariah gender protocols?", placeholder="Type your professional response here...")
-    s2 = st.text_area("S2: Justify the 'Halal Premium' cost to your CFO if they ask to cut costs?", placeholder="Type your professional response here...")
-
-    if st.button("🚀 Submit to AI Co-Researcher"):
-        with st.spinner("AI is performing Semantic Analysis on your answers..."):
-            time.sleep(2)
-            
-            # --- REAL AI LOGIC ---
-            obj_score = 0
-            if q1 == "Use non-halal alternative immediately": obj_score += 5
-            if q2 == "Protection of Dignity (Nafs)": obj_score += 5
-            # Max possible 10 for these two
-            
-            # Semantic keyword check
-            keywords = ["policy", "guideline", "respect", "trust", "maqasid", "ethics", "quality", "patient"]
-            combined_text = (s1 + " " + s2).lower()
-            subjective_score = sum(10 for word in keywords if word in combined_text)
-            
-            # Gibberish check (nonsense input like 'kukuk')
-            is_nonsense = len(s1) < 15 or len(s2) < 15
-            if is_nonsense: subjective_score = 5
-
-            final_total = obj_score + subjective_score
-            
-            # --- REPORT ---
-            st.markdown("### 📊 Official AI Evaluation Report")
-            c_res1, c_res2 = st.columns(2)
-            
-            with c_res1:
-                st.metric("Objective Score", f"{obj_score}/10")
-                st.metric("AI Semantic Alignment", f"{subjective_score}%")
-            
-            with c_res2:
-                if final_total < 50:
-                    status = "🔴 FAILED / INTERVENTION REQUIRED"
-                    color = "red"
-                    advice = "Critical knowledge gap. Staf tidak mencapai kriteria minimum kefahaman."
-                else:
-                    status = "🟢 PASSED"
-                    color = "green"
-                    advice = "Staf menunjukkan kefahaman yang mendalam tentang SOP Shariah."
-                
-                st.markdown(f"**Status:** <span style='color:{color}'><b>{status}</b></span>", unsafe_allow_html=True)
-                st.write(f"**AI Guidance:** {advice}")
-
-            # --- ESCALATION ---
-            st.divider()
-            hod_email = st.text_input("Head of Department (HOD) Email", value="hod_clinical@hospital.com")
-            if st.button("📧 Forward Full Report to HOD"):
-                st.success(f"Report ID: {datetime.now().strftime('%Y%H%M')} forwarded to {hod_email}")
-                log_event("Academy", f"Escalated to HOD: {status}", "🚩" if "FAILED" in status else "✅")
-
-# --- MODULE: VAULT ---
-elif menu == "🔐 Phase 4: Social Finance Vault":
-    st.subheader("🔐 Phase 4: Social Finance Ledger")
-    amount = st.select_slider("Inject Zakat/Waqf Fund (RM)", options=[50000, 100000, 150000, 200000], value=st.session_state.audit_data['zakat'])
-    st.session_state.audit_data['zakat'] = amount
-    if st.button("Authorize Fund Injection"):
-        log_event("Vault", f"Injected RM {amount:,}")
-        st.balloons()
-    ledger = pd.DataFrame({
-        "Hash ID": ["0x992...f1", "0x884...a3", "0x771...e2"],
-        "Source": ["Waqf Fund", "Baitulmal", "CSR"],
-        "Value (RM)": [amount*0.5, amount*0.2, amount*0.3],
-        "Status": ["Verified", "Verified", "Verified"]
-    })
-    st.table(ledger)
-
-# --- MODULE: RESULTS ---
-elif menu == "📈 Phase 5: Affordability Report":
-    st.subheader("📈 Phase 5: Final Impact Report")
-    premium = st.session_state.audit_data['hal'] - st.session_state.audit_data['std']
-    offset = st.session_state.audit_data['zakat']
-    sus = (offset / premium * 100) if premium > 0 else 100
+    with col_bill:
+        total_bill = st.number_input("Total Patient Bill (RM)", min_value=100.0, value=15000.0)
+        subsidy_perc = st.slider("Subsidy Coverage (%)", 0, 100, 40)
     
-    st.markdown(f"""
-    <div style="background-color:#1E3A8A; color:white; padding:25px; border-radius:15px;">
-        <h2>Financial Resilience: {round(sus, 1)}%</h2>
-        <p>This score indicates how well Social Finance offsets the Shariah Compliance cost.</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    st.divider()
-    st.subheader("💳 Patient Bill Simulation")
-    base = 2500
-    discount = base * (sus/100) * 0.3
-    st.write(f"**Original Bill:** RM {base:,.2f}")
-    st.write(f"**i-Health OS Discount (Waqf/Zakat):** -RM {discount:,.2f}")
-    st.markdown(f"### **Final Payable: RM {base - discount:,.2f}**")
+    subsidy_val = total_bill * (subsidy_perc / 100)
+    final_payable = total_bill - subsidy_val
+
+    with col_final:
+        st.markdown(f"""
+        **Final Billing Statement:**
+        | Description | Amount |
+        | :--- | :--- |
+        | **Gross Hospital Bill** | **RM {total_bill:,.2f}** |
+        | MNC A Subsidy Offset | - RM {subsidy_val:,.2f} |
+        | --- | --- |
+        | **Net Payable by Patient** | **RM {final_payable:,.2f}** |
+        """)
+        
+        if st.button("Process Subsidy Claim"):
+            st.session_state.spent += subsidy_val
+            st.success("Claim processed. Real-time balance updated.")
 
 # --- FOOTER ---
 st.divider()
 st.markdown(f"<div style='text-align:center;'><b>i-Health OS</b> | Principal Investigator: {PI_NAME}</div>", unsafe_allow_html=True)
-st.caption(f"Ref: {PROJECT_REF}")
+st.caption(f"Based on Research: Fadzil & Mat (2025). Shariah-Driven Healthcare. RABBANICA, 6(1).")
