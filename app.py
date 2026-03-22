@@ -3,11 +3,11 @@ import pandas as pd
 import time
 import plotly.express as px
 
-# --- 1. SETTINGS & BRANDING ---
-st.set_page_config(page_title="i-Health OS | Smart System", layout="wide")
+# --- 1. SETTINGS ---
+st.set_page_config(page_title="i-Health OS | Full Systems", layout="wide")
 PI_NAME = "MOHD KHAIRUL RIDHUAN BIN MOHD FADZIL"
 
-# --- 2. DATABASE SOALAN & SKEMA JAWAPAN (10 Qs x 5 Sets) ---
+# --- 2. DATABASE 50 SOALAN (10 Qs x 5 Sets) ---
 questions_db = {
     "Set A: Maqasid Fundamentals": {
         "questions": [
@@ -39,126 +39,156 @@ questions_db = {
         ],
         "ai_tip": "Dignity (Karamah) is central to the preservation of life in Shariah."
     },
-    # Set C, D, E ditambahkan dengan struktur yang sama...
+    "Set C: Financial Integrity": {
+        "questions": [
+            ("Justifying 'Halal Premium' costs is based on:", ["Hifz al-Din", "Hifz al-Mal", "Marketing"], "Hifz al-Din"),
+            ("Utilizing Zakat for asnaf patients relates to:", ["Hifz al-Mal", "Hifz al-Aql", "Profit"], "Hifz al-Mal"),
+            ("Procurement free from Riba relates to:", ["Hifz al-Mal", "Hifz al-Din", "Hifz al-Nasl"], "Hifz al-Mal"),
+            ("Transparency in billing is part of:", ["Fulfilling Contracts", "Tax evasion", "Marketing"], "Fulfilling Contracts"),
+            ("Waqf for dialysis machines is a form of:", ["Sadaqah Jariyah", "Investment", "Loan"], "Sadaqah Jariyah"),
+            ("Hidden charges not disclosed is considered:", ["Gharar (Uncertainty)", "Strategy", "Normal"], "Gharar (Uncertainty)"),
+            ("Procuring halal sutures ensures:", ["Compliance", "Aesthetics", "Cheaper costs"], "Compliance"),
+            ("CFO must balance profit and:", ["Ethical Sustainability", "Maximum Debt", "Staff party"], "Ethical Sustainability"),
+            ("Auditing Zakat usage is for:", ["Accountability", "CEO fame", "Spending faster"], "Accountability"),
+            ("Using specific ICU grants for staff parties is a breach of:", ["Amanah (Trust)", "Hifz al-Mal", "Both"], "Both")
+        ],
+        "ai_tip": "Economic sustainability must never compromise religious integrity."
+    },
+    "Set D: Privacy & Ethics": {
+        "questions": [
+            ("Patient preference for female doctors protects:", ["Modesty", "Schedules", "Ratings"], "Modesty"),
+            ("Chaperone policy prevents:", ["Khalwah (Seclusion)", "Speed", "Lawsuits"], "Khalwah (Seclusion)"),
+            ("Human body in Bioethics is a:", ["Trust (Amanah)", "Property", "Machine"], "Trust (Amanah)"),
+            ("Ward curtains are a manifestation of:", ["Covering Awrah", "Luxury", "Noise reduction"], "Covering Awrah"),
+            ("IVF treatments involve which pillar?", ["Hifz al-Nasl (Lineage)", "Hifz al-Mal", "Hifz al-Din"], "Hifz al-Nasl (Lineage)"),
+            ("Genetic testing results should be:", ["Private (Hifz al-Nasl)", "Public", "For insurance"], "Private (Hifz al-Nasl)"),
+            ("Breaking confidentiality is allowed only to:", ["Prevent greater harm", "Gossip", "Media request"], "Prevent greater harm"),
+            ("Ethical clinical trials prioritize:", ["Patient safety", "Researcher fame", "Speed"], "Patient safety"),
+            ("Treatment of non-Muslims requires:", ["Kindness & Ethics", "Extra charges", "Ignoring them"], "Kindness & Ethics"),
+            ("Spiritual needs of dying patients is:", ["Holistic Shariah care", "Waste of time", "Optional extra"], "Holistic Shariah care")
+        ],
+        "ai_tip": "Privacy is not just a policy; it's a fundamental right in Maqasid."
+    },
+    "Set E: Future Challenges": {
+        "questions": [
+            ("Vaccination is justified as:", ["Prevention of mass harm", "Economic boost", "Staff requirement"], "Prevention of mass harm"),
+            ("Mental health support relates to:", ["Hifz al-Aql (Intellect)", "Hifz al-Mal", "Hifz al-Din"], "Hifz al-Aql (Intellect)"),
+            ("AI in diagnostics should ensure:", ["Accountability (Hifz al-Nafs)", "Speed only", "Expensive software"], "Accountability (Hifz al-Nafs)"),
+            ("Prohibited in lineage protection:", ["Third party sperm donation", "Blood transfusion", "Organ transplant"], "Third party sperm donation"),
+            ("DNR orders require:", ["Medical & Family consensus", "Fatwa only", "Net worth"], "Medical & Family consensus"),
+            ("Protecting hospital brand is part of:", ["Hifz al-Mal (Asset)", "Hifz al-Din", "Neither"], "Hifz al-Mal (Asset)"),
+            ("Changing traits via Biotech is usually:", ["Discouraged", "Encouraged", "Mandatory"], "Discouraged"),
+            ("Green Hospital (Sustainability) relates to:", ["Preserving future generations", "Cutting costs", "Fashion"], "Preserving future generations"),
+            ("Tele-health must ensure:", ["Privacy & Accuracy", "High fees", "Muslim-only"], "Privacy & Accuracy"),
+            ("A Shariah hospital serves as a:", ["Model of compassionate care", "Profit center", "Building for prayer"], "Model of compassionate care")
+        ],
+        "ai_tip": "Future technology must align with the preservation of human essence."
+    }
 }
 
-# --- 3. SIDEBAR ---
+# --- 3. SESSION STATE ---
+if 'grant_total' not in st.session_state: st.session_state.grant_total = 250000.0
+if 'spent_total' not in st.session_state: st.session_state.spent_total = 45000.0
+
+# --- 4. SIDEBAR ---
 st.sidebar.title("🏥 i-Health OS")
 st.sidebar.markdown(f"**Principal Investigator:**\n{PI_NAME}")
 st.sidebar.divider()
-menu = st.sidebar.radio("Navigation", ["📚 Talent Academy Training", "💰 Interactive Finance Hub"])
+# Pastikan TIADA ruang kosong di awal/akhir string menu
+menu = st.sidebar.radio("Navigation", ["📚 Training Academy", "💰 Interactive Finance Hub"])
 
-# --- 4. TRAINING MODULE (SMART GRADING) ---
-if menu == "📚 Talent Academy Training":
-    st.header("📖 Weekly Training Assessment")
-    st.info("AI Co-Researcher Mode: Answers are analyzed for clinical-Shariah alignment.")
+# --- 5. TRAINING ACADEMY ---
+if menu == "📚 Training Academy":
+    st.header("📖 Talent Academy: Shariah-Clinical Assessment")
     
-    with st.container():
-        c1, c2, c3 = st.columns([2, 2, 1])
-        name = c1.text_input("Staff Name")
-        s_id = c2.text_input("Staff ID")
-        selected_set = c3.selectbox("Select Set", list(questions_db.keys()))
+    col1, col2, col3 = st.columns([2, 2, 1])
+    name = col1.text_input("Staff Name")
+    s_id = col2.text_input("Staff ID")
+    selected_set = col3.selectbox("Select Weekly Set", list(questions_db.keys()))
 
     st.divider()
     st.subheader(f"📝 Assessment: {selected_set}")
     
+    current_set = questions_db[selected_set]["questions"]
     user_answers = []
-    current_questions = questions_db[selected_set]["questions"]
     
-    for i, (q, opts, ans) in enumerate(current_questions):
-        choice = st.radio(f"Q{i+1}: {q}", opts, key=f"q{selected_set}_{i}", index=None)
+    for i, (q, opts, ans) in enumerate(current_set):
+        choice = st.radio(f"Q{i+1}: {q}", opts, key=f"q_{selected_set}_{i}", index=None)
         user_answers.append(choice)
 
-    if st.button("Submit & Analyze Results"):
+    if st.button("Submit Assessment"):
         if None in user_answers:
-            st.warning("Please answer all questions before submitting.")
+            st.warning("⚠️ Please answer all 10 questions before submitting.")
         else:
             score = 0
-            st.write("### 📊 AI Co-Researcher Report")
-            for i, (q, opts, correct) in enumerate(current_questions):
+            st.write("### 🤖 AI Co-Researcher Evaluation Report")
+            for i, (q, opts, correct) in enumerate(current_set):
                 if user_answers[i] == correct:
                     score += 1
                     st.success(f"Q{i+1}: Correct! ✅")
                 else:
-                    st.error(f"Q{i+1}: Wrong. ❌ (Correct: {correct})")
+                    st.error(f"Q{i+1}: Incorrect. ❌ (Correct Answer: {correct})")
             
-            final_score = (score / len(current_questions)) * 100
-            st.metric("Your Competency Score", f"{final_score}%")
-            
-            # AI Feedback Logic
-            st.subheader("🤖 AI Improvement Suggestions")
-            if final_score == 100:
-                st.balloons()
-                st.write("Excellent! You have achieved optimal alignment with the Shariah Healthcare Framework.")
-            elif final_score >= 70:
-                st.write(f"Good progress. **Tip:** {questions_db[selected_set]['ai_tip']}")
-            else:
-                st.write(f"Improvement needed. Please re-read the 'Methodology' section of Fadzil & Mat (2025). **Tip:** {questions_db[selected_set]['ai_tip']}")
+            final_score = (score / 10) * 100
+            st.metric("Final Competency Score", f"{final_score}%")
+            st.info(f"**AI Advice:** {questions_db[selected_set]['ai_tip']}")
+            if final_score >= 80: st.balloons()
 
-# --- 5. FINANCE HUB (FULLY INTERACTIVE) ---
-elif menu == " Interactive Finance Hub":
+# --- 6. FINANCE HUB ---
+elif menu == "💰 Interactive Finance Hub":
     st.header("💰 Subsidy Hub & Fund Allocator")
-    st.write("Set your budget and claims. The system will calculate the distribution automatically.")
-
-    # --- KOTAK INPUT (BOX KOSONG) ---
+    
     with st.container():
-        st.subheader("⚙️ Financial Setup & Claims")
-        col_input1, col_input2 = st.columns(2)
+        st.subheader("⚙️ Financial Setup (Interactive Input)")
+        c_in1, c_in2 = st.columns(2)
+        # Sediakan kotak kosong untuk user masukkan nilai
+        val_grant = c_in1.number_input("Enter Total Grant (RM)", value=st.session_state.grant_total, step=1000.0)
+        val_spent = c_in2.number_input("Enter Total Used/Claims (RM)", value=st.session_state.spent_total, step=500.0)
         
-        with col_input1:
-            initial_grant = st.number_input("Enter Initial Grant Amount (RM)", min_value=0.0, value=250000.0, step=1000.0)
-        
-        with col_input2:
-            total_used = st.number_input("Enter Total Claims/Spent (RM)", min_value=0.0, value=45000.0, step=500.0)
+        # Update session state secara live
+        st.session_state.grant_total = val_grant
+        st.session_state.spent_total = val_spent
 
-    # --- AUTO CALCULATION ---
-    remaining_balance = initial_grant - total_used
+    # Kira baki
+    balance = st.session_state.grant_total - st.session_state.spent_total
 
-    # --- DISPLAY METRICS ---
     st.divider()
     m1, m2, m3 = st.columns(3)
-    m1.metric("INITIAL GRANT (MNC A)", f"RM {initial_grant:,.2f}")
-    m2.metric("TOTAL USED", f"RM {total_used:,.2f}", delta="- Used", delta_color="inverse")
+    m1.metric("INITIAL GRANT", f"RM {st.session_state.grant_total:,.2f}")
+    m2.metric("TOTAL USED", f"RM {st.session_state.spent_total:,.2f}", delta="- Used", delta_color="inverse")
     
-    if remaining_balance <= 0:
-        m3.error(f"BALANCE: RM {remaining_balance:,.2f} (NO MORE SUBSIDY)")
-        remaining_balance = 0
+    if balance <= 0:
+        m3.error(f"BALANCE: RM {balance:,.2f} (NO MORE SUBSIDY)")
+        balance = 0
     else:
-        m3.metric("REMAINING BALANCE", f"RM {remaining_balance:,.2f}")
+        m3.metric("REMAINING BALANCE", f"RM {balance:,.2f}")
 
-    # --- ADJUSTABLE UNIT ALLOCATION ---
+    # Unit Allocation Sliders
     st.divider()
-    st.subheader("📊 Unit Allocation Adjustment")
-    st.write(f"Distribute RM {remaining_balance:,.2f} to hospital units:")
-
-    units = ["ICU", "CCU", "Cardiac", "General Ward", "Neonat", "Onco", "Others"]
+    st.subheader("📊 Adjust Allocation (%) for Hospital Units")
+    st.write(f"Distributing remaining RM {balance:,.2f}:")
     
-    # Sliders for each unit
-    u_cols = st.columns(len(units))
+    units = ["ICU", "CCU", "Cardiac", "General Ward", "Neonat", "Onco", "Others"]
+    u_cols = st.columns(7)
     pcts = []
-    default_pcts = [20, 15, 15, 15, 15, 10, 10]
+    defaults = [20, 15, 15, 15, 15, 10, 10]
     
     for i, unit in enumerate(units):
-        val = u_cols[i].slider(f"{unit} (%)", 0, 100, default_pcts[i])
-        pcts.append(val)
-
-    total_pct = sum(pcts)
+        p = u_cols[i].slider(f"{unit}", 0, 100, defaults[i])
+        pcts.append(p)
     
-    if total_pct != 100:
-        st.error(f"⚠️ Total percentage is {total_pct}%. Please adjust sliders to exactly 100%.")
+    if sum(pcts) != 100:
+        st.error(f"⚠️ Total is {sum(pcts)}%. Please adjust until it reaches 100%.")
     else:
-        df_final = pd.DataFrame({
+        df = pd.DataFrame({
             "Unit": units,
-            "Allocation (%)": pcts,
-            "Amount (RM)": [remaining_balance * (p/100) for p in pcts]
+            "Amount (RM)": [balance * (p/100) for p in pcts]
         })
         
-        # Table & Chart
-        c_t, c_c = st.columns([1, 1])
-        with c_t:
-            st.table(df_final.style.format({"Amount (RM)": "RM {:,.2f}"}))
-        with c_c:
-            fig = px.pie(df_final, values='Amount (RM)', names='Unit', hole=0.5, title="Real-Time Fund Map")
+        col_t, col_c = st.columns([1, 1])
+        with col_t: st.table(df.style.format({"Amount (RM)": "RM {:,.2f}"}))
+        with col_c:
+            fig = px.pie(df, values='Amount (RM)', names='Unit', hole=0.5, title="Fund Map")
             st.plotly_chart(fig, use_container_width=True)
 
 # --- FOOTER ---
